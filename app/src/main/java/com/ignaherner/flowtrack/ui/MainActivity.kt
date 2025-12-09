@@ -1,7 +1,12 @@
 package com.ignaherner.flowtrack.ui
 
+import android.app.AlertDialog
 import android.os.Bundle
+import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -54,19 +59,16 @@ class MainActivity : AppCompatActivity() {
         // 3) Observar los flows del ViewModel
         observeViewModel()
 
-        // 4) Accion del FAB: por ahora agregamos un movimiento de prueba
+        // 4) Accion del FAB: ahora abrimos el dialogo para cargar el movimiento
         fabAddTransaction.setOnClickListener {
-            // Por ahora para probar, agregamos un "Ingreso demo"
-            // En l bloque 3 lo reemplazamos por un dialogo para cargar datos
-            viewModel.addTransaction(
-                title = "Ingreso demo",
-                amount = 1000.0,
-                type = TransactionType.INCOME
-            )
+            showAddTransactionDialog()
         }
 
     }
 
+    /**
+     * Observa los StateFlows del ViewModel y actualiza la UI
+     */
     private fun observeViewModel() {
         // Usamos repeatOnLifecycle para recoger los flows de forma segura
         lifecycleScope.launch {
@@ -89,5 +91,64 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Muestra un dialogo para ingresar un nuevo movimiento
+     * El usuario completa: titulo, monto y tipo (ingreso o gasto)
+     */
+
+    private fun showAddTransactionDialog() {
+        // Inflamos el layout del dialogo
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_transaction, null)
+
+        // Referencias a los campos del dialogo
+        val etTitle = dialogView.findViewById<EditText>(R.id.etTitle)
+        val etAmount = dialogView.findViewById<EditText>(R.id.etAmount)
+        val rgType = dialogView.findViewById<RadioGroup>(R.id.rgType)
+        val rbIncome = dialogView.findViewById<RadioButton>(R.id.rbIncome)
+        val rbExpense = dialogView.findViewById<RadioButton>(R.id.rbExpense)
+
+        //Construimos el AlertDialog
+        AlertDialog.Builder(this)
+            .setTitle("Nuevo movimiento")
+            .setView(dialogView)
+            .setPositiveButton("Guardar") {_, _ ->
+                // Importante: esta lamba se ejecuta cuando se toca "Guardar"
+
+                val title = etTitle.text.toString().trim()
+                val amountText = etAmount.text.toString().trim()
+
+                // Validacion basica de campos
+                if (title.isEmpty()) {
+                    Toast.makeText(this, "El titulo no puede estar vacio", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val amount = amountText.toDoubleOrNull()
+                if (amount == null || amount <= 0.0) {
+                    Toast.makeText(this, "Ingresa un monto valido mayor a 0", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                // Determinamos el tipo segun el RadioButton seleccionado
+                val type = when {
+                    rbIncome.isChecked -> TransactionType.INCOME
+                    rbExpense.isChecked -> TransactionType.EXPENSE
+                    else -> TransactionType.INCOME // Default de seguridad
+                }
+
+                // Llamamos al ViewModel para agregar el movimiento
+                viewModel.addTransaction(
+                    title = title,
+                    amount = amount,
+                    type = type
+                )
+            }
+            .setNegativeButton("Cancelar") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 }
