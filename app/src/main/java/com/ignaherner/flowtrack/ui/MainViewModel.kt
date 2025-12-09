@@ -1,0 +1,71 @@
+package com.ignaherner.flowtrack.ui
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ignaherner.flowtrack.domain.model.Transaction
+import com.ignaherner.flowtrack.domain.model.TransactionType
+import com.ignaherner.flowtrack.domain.repository.TransactionRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+
+//Estado de resumen que usaremos para la parte de arriba de la pantalla
+data class SummaryUiState(
+    val totalIncome: Double = 0.0,
+    val totalExpense: Double = 0.0,
+    val balance: Double = 0.0
+)
+
+class MainViewModel(
+    private val repository: TransactionRepository
+) : ViewModel(){
+    // Flujo de movimientos que viene del repositorio
+    // La UI va a observar esto
+    val transaction: StateFlow<List<Transaction>> =
+        repository.transactionsFlow
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+    // Resumen calculado en base a la lista de movimientos
+    val summary: StateFlow<SummaryUiState> =
+        transaction
+            .map { list ->
+                val income = list
+                    .filter { it.type == TransactionType.INCOME }
+                    .sumOf { it.amount }
+                val expense = list
+                    .filter { it.type == TransactionType.EXPENSE }
+                    .sumOf { it.amount }
+
+                SummaryUiState(
+                    totalIncome = income,
+                    totalExpense = expense,
+                    balance = income - expense
+                )
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = SummaryUiState()
+            )
+
+    // Funcion publica que usara la UI para agregar un movimiento
+    fun addTransaction(title: String, amount: Double, type: TransactionType) {
+        // Creamos el modelo de dominio
+        val transaction = Transaction (
+            title = title,
+            amount = amount,
+            type = type
+        )
+
+        // Llamamos al repositorio dentro de una coroutine
+        viewModelScope.launch {
+            repository.addTransaction(transaction)
+        }
+    }
+}
