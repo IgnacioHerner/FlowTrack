@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     // Usamos el delegate viewModels con nuestra factory
     private val viewModel : MainViewModel by viewModels {
-        MainViewModelFactory()
+        MainViewModelFactory(applicationContext)
     }
 
     // Referencias a vistas
