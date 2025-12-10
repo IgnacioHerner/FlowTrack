@@ -87,6 +87,20 @@ class MainActivity : AppCompatActivity() {
                         tvIncomeValue.text = String.format("$ %.2f", summary.totalIncome)
                         tvExpenseValue.text = String.format("$ %.2f", summary.totalExpense)
                         tvBalanceValue.text = String.format("$ %.2f", summary.balance)
+
+                        // Cambiar color del saldo segun sea positivo, negativo o cero
+                        val balanceColorRes = when {
+                            summary.balance > 0.0 -> R.color.balancePositive
+                            summary.balance < 0.0 -> R.color.balanceNegative
+                            else -> R.color.balanceNeutral
+                        }
+
+                        tvBalanceValue.setTextColor(
+                            androidx.core.content.ContextCompat.getColor(
+                                this@MainActivity,
+                                balanceColorRes
+                            )
+                        )
                     }
                 }
             }

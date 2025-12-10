@@ -4,11 +4,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.ignaherner.flowtrack.R
 import com.ignaherner.flowtrack.domain.model.Transaction
 import com.ignaherner.flowtrack.domain.model.TransactionType
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
+// Adapter simple para mostrar la lista de movimientos
+// Ahora con formato de moneda y colores segun el tipo
 class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder>() {
 
     private var items: List<Transaction> = emptyList()
@@ -34,21 +41,38 @@ class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.TransactionVi
         position: Int
     ) {
         val item = items[position]
+        val context = holder.itemView.context
 
         // Titulo del movimiento
         holder.tvTitle.text = item.title
 
-        // Monto formateado bascico (luego hacemos algo mas lindo)
-        val amountText = String.format("$ %.2f", item.amount)
+        // Formato de moneda
+        // Usamos locale de Argentina como ejemplo (podes usar Locale.getDefault())
+        val currencyFormat = NumberFormat.getCurrencyInstance(Locale("es", "AR"))
+        val amountText = currencyFormat.format(item.amount)
         holder.tvAmount.text = amountText
 
-        // Tipo: Ingreso o Gasto
-        holder.tvType.text = when(item.type) {
-            TransactionType.INCOME -> "Ingreso"
-            TransactionType.EXPENSE -> "Gasto"
-        }
+        // Tipo y color segun INCOME / EXPENSE
+        when(item.type) {
+            TransactionType.INCOME -> {
+                holder.tvType.text = "Ingreso"
+                holder.tvAmount.setTextColor(
+                    ContextCompat.getColor(context, R.color.incomeColor)
+                )
+            }
 
-        holder.tvDate.text = "Ahora"
+            TransactionType.EXPENSE -> {
+                holder.tvType.text = "Gasto"
+                holder.tvAmount.setTextColor(
+                    ContextCompat.getColor(context, R.color.expenseColor)
+                )
+            }
+        }
+        // Formato de fecha simple a partir del timestamp
+        // dd/MM/yyyy HH:mm -> "07/12/2025 14:30"
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        val dateText = dateFormat.format(Date(item.timestamp))
+        holder.tvDate.text = dateText
     }
 
     override fun getItemCount(): Int = items.size
