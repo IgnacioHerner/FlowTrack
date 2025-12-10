@@ -2,9 +2,11 @@ package com.ignaherner.flowtrack.ui
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -19,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ignaherner.flowtrack.R
+import com.ignaherner.flowtrack.domain.model.TransactionCategory
 import com.ignaherner.flowtrack.domain.model.TransactionType
 import kotlinx.coroutines.launch
 
@@ -122,6 +125,29 @@ class MainActivity : AppCompatActivity() {
         val rgType = dialogView.findViewById<RadioGroup>(R.id.rgType)
         val rbIncome = dialogView.findViewById<RadioButton>(R.id.rbIncome)
         val rbExpense = dialogView.findViewById<RadioButton>(R.id.rbExpense)
+        val spCategory = dialogView.findViewById<Spinner>(R.id.spCategory)
+
+        //Preparamos las categorias para el Spinner
+        val categories = TransactionCategory.values()
+        val categoryLabels = listOf(
+            "Salario",
+            "Alquiler",
+            "Comida",
+            "Transporte",
+            "Entretenimiento",
+            "Otros"
+        )
+
+        val spinnerAdapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                categoryLabels
+            ).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
+        spCategory.adapter = spinnerAdapter
+
+
 
         //Construimos el AlertDialog
         AlertDialog.Builder(this)
@@ -152,11 +178,15 @@ class MainActivity : AppCompatActivity() {
                     else -> TransactionType.INCOME // Default de seguridad
                 }
 
+                val selectedIndex = spCategory.selectedItemPosition
+                val category = categories.getOrElse(selectedIndex) { TransactionCategory.OTHER}
+
                 // Llamamos al ViewModel para agregar el movimiento
                 viewModel.addTransaction(
                     title = title,
                     amount = amount,
-                    type = type
+                    type = type,
+                    category = category
                 )
             }
             .setNegativeButton("Cancelar") { dialog, _ ->

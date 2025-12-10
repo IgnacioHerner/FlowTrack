@@ -3,6 +3,7 @@ package com.ignaherner.flowtrack.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ignaherner.flowtrack.domain.model.Transaction
+import com.ignaherner.flowtrack.domain.model.TransactionCategory
 import com.ignaherner.flowtrack.domain.model.TransactionType
 import com.ignaherner.flowtrack.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -55,12 +56,18 @@ class MainViewModel(
             )
 
     // Funcion publica que usara la UI para agregar un movimiento
-    fun addTransaction(title: String, amount: Double, type: TransactionType) {
+    fun addTransaction(
+        title: String,
+        amount: Double,
+        type: TransactionType,
+        category: TransactionCategory
+    ) {
         // Creamos el modelo de dominio
         val transaction = Transaction (
             title = title,
             amount = amount,
-            type = type
+            type = type,
+            category = category
         )
 
         // Llamamos al repositorio dentro de una coroutine

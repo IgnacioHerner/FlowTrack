@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.ignaherner.flowtrack.R
 import com.ignaherner.flowtrack.domain.model.Transaction
+import com.ignaherner.flowtrack.domain.model.TransactionCategory
 import com.ignaherner.flowtrack.domain.model.TransactionType
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -24,6 +25,7 @@ class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.TransactionVi
         val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
         val tvAmount: TextView = itemView.findViewById(R.id.tvAmount)
         val tvType: TextView = itemView.findViewById(R.id.tvType)
+        val tvCategory: TextView = itemView.findViewById(R.id.tvCategory)
         val tvDate: TextView = itemView.findViewById(R.id.tvDate)
     }
 
@@ -68,6 +70,18 @@ class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.TransactionVi
                 )
             }
         }
+
+        // Categoria (texto amigable)
+        val categoryText = when (item.category) {
+            TransactionCategory.SALARY -> "Salario"
+            TransactionCategory.RENT -> "Alquiler"
+            TransactionCategory.FOOD -> "Comida"
+            TransactionCategory.TRANSPORT -> "Transporte"
+            TransactionCategory.ENTERTAINMENT -> "Entretenimiento"
+            TransactionCategory.OTHER -> "Otros"
+        }
+        holder.tvCategory.text = categoryText
+
         // Formato de fecha simple a partir del timestamp
         // dd/MM/yyyy HH:mm -> "07/12/2025 14:30"
         val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
