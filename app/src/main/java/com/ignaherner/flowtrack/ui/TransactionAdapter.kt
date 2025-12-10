@@ -5,6 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ignaherner.flowtrack.R
 import com.ignaherner.flowtrack.domain.model.Transaction
@@ -15,9 +17,15 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// Adapter simple para mostrar la lista de movimientos
-// Ahora con formato de moneda y colores segun el tipo
-class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder>() {
+// Adapter profesional usando ListAdapter + DiffUtil.
+// Esto permite actualizaciones eficientes y animaciones al cambiar la lista.
+class TransactionAdapter :
+    ListAdapter<Transaction, TransactionAdapter.TransactionViewHolder>(TransactionDiffCallback) {
+
+    init {
+        // Le decimos al RecyclerView que los IDs son estables
+        setHasStableIds(true)
+    }
 
     private var items: List<Transaction> = emptyList()
 
@@ -42,7 +50,7 @@ class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.TransactionVi
         holder: TransactionViewHolder,
         position: Int
     ) {
-        val item = items[position]
+        val item = getItem(position)
         val context = holder.itemView.context
 
         // Titulo del movimiento
@@ -89,14 +97,21 @@ class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.TransactionVi
         holder.tvDate.text = dateText
     }
 
-    override fun getItemCount(): Int = items.size
-
-    // Funcion publica para actualziar la lista que muestra el adapter
-    fun submitList(newItems: List<Transaction>) {
-        // Version simple: reemplaza todo y refresca
-        // Mas adelante: optimizar con DiffUtil
-        items = newItems
-        notifyDataSetChanged()
+    override fun getItemId(position: Int) : Long {
+        return getItem(position).id
     }
+
+object TransactionDiffCallback : DiffUtil.ItemCallback<Transaction>() {
+    // Determina si dos items representan la misma entidad (mismo ID)
+    override fun areItemsTheSame(oldItem: Transaction, newItem: Transaction): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    // Determina si el contenido del item es el mismo
+    override fun areContentsTheSame(oldItem: Transaction, newItem: Transaction): Boolean {
+        // Como Transaction es data class, equals ya compara campo a campo
+        return oldItem == newItem
+    }
+}
 
 }
