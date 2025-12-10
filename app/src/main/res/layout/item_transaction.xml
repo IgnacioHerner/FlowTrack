@@ -49,6 +49,17 @@
             android:layout_marginTop="4dp"
             tools:text="Ingreso" />
 
+        <!-- Categoría -->
+        <TextView
+            android:id="@+id/tvCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/tvType"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="4dp"
+            tools:text="Salario" />
+
         <!-- Fecha simple o placeholder (más adelante formateamos timestamp) -->
         <TextView
             android:id="@+id/tvDate"

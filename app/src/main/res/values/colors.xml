@@ -2,4 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="incomeColor">#2E7D32</color>   <!-- Verde ingresos -->
+    <color name="expenseColor">#C62828</color>  <!-- Rojo gastos -->
+    <color name="balancePositive">#2E7D32</color>
+    <color name="balanceNegative">#C62828</color>
+    <color name="balanceNeutral">#424242</color> <!-- Gris neutro -->
 </resources>

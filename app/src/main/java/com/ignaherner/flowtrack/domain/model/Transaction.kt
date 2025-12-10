@@ -11,5 +11,6 @@ data class Transaction (
     val title: String,                         // Descripcion: "Sueldo", "Alquiler", Etc
     val amount: Double,                        // Monto positivio. el tipo indica si es ingreso o gasto
     val type: TransactionType,                 // INCOME O EXPENSE
+    val category: TransactionCategory,
     val timestamp: Long = System.currentTimeMillis()  // Momento del movimiento en millis
 )

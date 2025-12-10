@@ -1,7 +1,14 @@
 package com.ignaherner.flowtrack.ui
 
+import android.app.AlertDialog
 import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ignaherner.flowtrack.R
+import com.ignaherner.flowtrack.domain.model.TransactionCategory
 import com.ignaherner.flowtrack.domain.model.TransactionType
 import kotlinx.coroutines.launch
 
@@ -21,7 +29,7 @@ class MainActivity : AppCompatActivity() {
 
     // Usamos el delegate viewModels con nuestra factory
     private val viewModel : MainViewModel by viewModels {
-        MainViewModelFactory()
+        MainViewModelFactory(applicationContext)
     }
 
     // Referencias a vistas
@@ -54,19 +62,16 @@ class MainActivity : AppCompatActivity() {
         // 3) Observar los flows del ViewModel
         observeViewModel()
 
-        // 4) Accion del FAB: por ahora agregamos un movimiento de prueba
+        // 4) Accion del FAB: ahora abrimos el dialogo para cargar el movimiento
         fabAddTransaction.setOnClickListener {
-            // Por ahora para probar, agregamos un "Ingreso demo"
-            // En l bloque 3 lo reemplazamos por un dialogo para cargar datos
-            viewModel.addTransaction(
-                title = "Ingreso demo",
-                amount = 1000.0,
-                type = TransactionType.INCOME
-            )
+            showAddTransactionDialog()
         }
 
     }
 
+    /**
+     * Observa los StateFlows del ViewModel y actualiza la UI
+     */
     private fun observeViewModel() {
         // Usamos repeatOnLifecycle para recoger los flows de forma segura
         lifecycleScope.launch {
@@ -85,9 +90,109 @@ class MainActivity : AppCompatActivity() {
                         tvIncomeValue.text = String.format("$ %.2f", summary.totalIncome)
                         tvExpenseValue.text = String.format("$ %.2f", summary.totalExpense)
                         tvBalanceValue.text = String.format("$ %.2f", summary.balance)
+
+                        // Cambiar color del saldo segun sea positivo, negativo o cero
+                        val balanceColorRes = when {
+                            summary.balance > 0.0 -> R.color.balancePositive
+                            summary.balance < 0.0 -> R.color.balanceNegative
+                            else -> R.color.balanceNeutral
+                        }
+
+                        tvBalanceValue.setTextColor(
+                            androidx.core.content.ContextCompat.getColor(
+                                this@MainActivity,
+                                balanceColorRes
+                            )
+                        )
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Muestra un dialogo para ingresar un nuevo movimiento
+     * El usuario completa: titulo, monto y tipo (ingreso o gasto)
+     */
+
+    private fun showAddTransactionDialog() {
+        // Inflamos el layout del dialogo
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_transaction, null)
+
+        // Referencias a los campos del dialogo
+        val etTitle = dialogView.findViewById<EditText>(R.id.etTitle)
+        val etAmount = dialogView.findViewById<EditText>(R.id.etAmount)
+        val rgType = dialogView.findViewById<RadioGroup>(R.id.rgType)
+        val rbIncome = dialogView.findViewById<RadioButton>(R.id.rbIncome)
+        val rbExpense = dialogView.findViewById<RadioButton>(R.id.rbExpense)
+        val spCategory = dialogView.findViewById<Spinner>(R.id.spCategory)
+
+        //Preparamos las categorias para el Spinner
+        val categories = TransactionCategory.values()
+        val categoryLabels = listOf(
+            "Salario",
+            "Alquiler",
+            "Comida",
+            "Transporte",
+            "Entretenimiento",
+            "Otros"
+        )
+
+        val spinnerAdapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                categoryLabels
+            ).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
+        spCategory.adapter = spinnerAdapter
+
+
+
+        //Construimos el AlertDialog
+        AlertDialog.Builder(this)
+            .setTitle("Nuevo movimiento")
+            .setView(dialogView)
+            .setPositiveButton("Guardar") {_, _ ->
+                // Importante: esta lamba se ejecuta cuando se toca "Guardar"
+
+                val title = etTitle.text.toString().trim()
+                val amountText = etAmount.text.toString().trim()
+
+                // Validacion basica de campos
+                if (title.isEmpty()) {
+                    Toast.makeText(this, "El titulo no puede estar vacio", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val amount = amountText.toDoubleOrNull()
+                if (amount == null || amount <= 0.0) {
+                    Toast.makeText(this, "Ingresa un monto valido mayor a 0", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                // Determinamos el tipo segun el RadioButton seleccionado
+                val type = when {
+                    rbIncome.isChecked -> TransactionType.INCOME
+                    rbExpense.isChecked -> TransactionType.EXPENSE
+                    else -> TransactionType.INCOME // Default de seguridad
+                }
+
+                val selectedIndex = spCategory.selectedItemPosition
+                val category = categories.getOrElse(selectedIndex) { TransactionCategory.OTHER}
+
+                // Llamamos al ViewModel para agregar el movimiento
+                viewModel.addTransaction(
+                    title = title,
+                    amount = amount,
+                    type = type,
+                    category = category
+                )
+            }
+            .setNegativeButton("Cancelar") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 }

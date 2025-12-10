@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Titulo del movimiento-->
+        <EditText
+            android:id="@+id/etTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Titulo (ej: Sueldo, Alquiler..)"
+            android:inputType="textCapSentences"/>
+
+        <!-- Monto -->
+        <EditText
+            android:id="@+id/etAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Monto"
+            android:inputType="numberDecimal"/>
+
+        <!-- Tipo: Ingreso o Gasto -->
+
+        <RadioGroup
+            android:id="@+id/rgType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp">
+
+            <RadioButton
+                android:id="@+id/rbIncome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ingreso"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/rbExpense"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gasto"
+                android:layout_marginStart="16dp"/>
+        </RadioGroup>
+
+        <Spinner
+            android:id="@+id/spCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"/>
+
+
+    </LinearLayout>
+</ScrollView>
