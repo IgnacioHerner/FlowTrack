@@ -60,6 +60,19 @@
             android:layout_marginTop="4dp"
             tools:text="Salario" />
 
+        <!-- ✅ Nota opcional -->
+        <TextView
+            android:id="@+id/tvNote"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#6B7280"
+            app:layout_constraintTop_toBottomOf="@id/tvCategory"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="2dp"
+            tools:text="Nota: pago extra este mes" />
+
         <!-- Fecha simple o placeholder (más adelante formateamos timestamp) -->
         <TextView
             android:id="@+id/tvDate"

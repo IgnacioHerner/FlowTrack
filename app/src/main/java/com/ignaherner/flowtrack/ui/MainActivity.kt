@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ignaherner.flowtrack.R
+import com.ignaherner.flowtrack.domain.model.Transaction
 import com.ignaherner.flowtrack.domain.model.TransactionCategory
 import com.ignaherner.flowtrack.domain.model.TransactionType
 import kotlinx.coroutines.launch
@@ -40,7 +41,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fabAddTransaction: FloatingActionButton
 
     // Adapter de la lista
-    private val transactionAdapter = TransactionAdapter()
+    private val transactionAdapter = TransactionAdapter { transaction ->
+        showEditTransactionDialog(transaction)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -122,6 +125,7 @@ class MainActivity : AppCompatActivity() {
         // Referencias a los campos del dialogo
         val etTitle = dialogView.findViewById<EditText>(R.id.etTitle)
         val etAmount = dialogView.findViewById<EditText>(R.id.etAmount)
+        val etNote = dialogView.findViewById<EditText>(R.id.etNote)
         val rgType = dialogView.findViewById<RadioGroup>(R.id.rgType)
         val rbIncome = dialogView.findViewById<RadioButton>(R.id.rbIncome)
         val rbExpense = dialogView.findViewById<RadioButton>(R.id.rbExpense)
@@ -158,6 +162,8 @@ class MainActivity : AppCompatActivity() {
 
                 val title = etTitle.text.toString().trim()
                 val amountText = etAmount.text.toString().trim()
+                val noteText = etNote.text.toString().trim()
+
 
                 // Validacion basica de campos
                 if (title.isEmpty()) {
@@ -186,7 +192,8 @@ class MainActivity : AppCompatActivity() {
                     title = title,
                     amount = amount,
                     type = type,
-                    category = category
+                    category = category,
+                    note = noteText
                 )
             }
             .setNegativeButton("Cancelar") { dialog, _ ->
@@ -194,5 +201,110 @@ class MainActivity : AppCompatActivity() {
             }
             .create()
             .show()
+    }
+
+    private fun showEditTransactionDialog(transaction: Transaction) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_transaction, null)
+
+        val etTitle = dialogView.findViewById<EditText>(R.id.etTitle)
+        val etAmount = dialogView.findViewById<EditText>(R.id.etAmount)
+        val etNote = dialogView.findViewById<EditText>(R.id.etNote)
+        val rgType = dialogView.findViewById<RadioGroup>(R.id.rgType)
+        val rbIncome = dialogView.findViewById<RadioButton>(R.id.rbIncome)
+        val rbExpense = dialogView.findViewById<RadioButton>(R.id.rbExpense)
+        val spCategory = dialogView.findViewById<Spinner>(R.id.spCategory)
+
+        // Preparamos categorías igual que en agregar
+        val categories = TransactionCategory.values()
+        val categoryLabels = listOf(
+            "Salario",
+            "Alquiler",
+            "Comida",
+            "Transporte",
+            "Entretenimiento",
+            "Otros"
+        )
+
+        val spinnerAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            categoryLabels
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        spCategory.adapter = spinnerAdapter
+
+        // Precargar los datos de la transaccion
+        etTitle.setText(transaction.title)
+        etAmount.setText(transaction.amount.toString())
+        etNote.setText(transaction.note ?: "")
+
+        when (transaction.type) {
+            TransactionType.INCOME -> rbIncome.isChecked = true
+            TransactionType.EXPENSE -> rbExpense.isChecked = true
+        }
+
+        // Seleccionar categoría correspondiente
+        val categoryIndex = categories.indexOf(transaction.category).takeIf { it >= 0 } ?: 0
+        spCategory.setSelection(categoryIndex)
+
+        // Construimos el diálogo
+        AlertDialog.Builder(this)
+            .setTitle("Editar movimiento")
+            .setView(dialogView)
+            .setPositiveButton("Actualizar") { _, _ ->
+
+                val title = etTitle.text.toString().trim()
+                val amountText = etAmount.text.toString().trim()
+                val noteText = etNote.text.toString().trim().ifEmpty { null }
+
+                if (title.isEmpty()) {
+                    Toast.makeText(this, "El título no puede estar vacío", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val amount = amountText.toDoubleOrNull()
+                if (amount == null || amount <= 0.0) {
+                    Toast.makeText(this, "Ingresá un monto válido mayor a 0", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val type = when {
+                    rbIncome.isChecked -> TransactionType.INCOME
+                    rbExpense.isChecked -> TransactionType.EXPENSE
+                    else -> transaction.type
+                }
+
+                val selectedIndex = spCategory.selectedItemPosition
+                val category = categories.getOrElse(selectedIndex) { TransactionCategory.OTHER }
+
+                // ✅ Creamos una copia actualizada manteniendo id y timestamp
+                val updatedTransaction = transaction.copy(
+                    title = title,
+                    amount = amount,
+                    type = type,
+                    category = category,
+                    note = noteText
+                )
+
+                viewModel.updateTransaction(updatedTransaction)
+            }
+            .setNegativeButton("Cancelar") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setNeutralButton("Eliminar") { _, _ ->
+                // Confirmación simple antes de borrar
+                AlertDialog.Builder(this)
+                    .setTitle("Eliminar movimiento")
+                    .setMessage("¿Seguro que querés eliminar este movimiento?")
+                    .setPositiveButton("Eliminar") { _, _ ->
+                        viewModel.deleteTransaction(transaction)
+                    }
+                    .setNegativeButton("Cancelar", null)
+                    .show()
+            }
+            .create()
+            .show()
+
     }
 }

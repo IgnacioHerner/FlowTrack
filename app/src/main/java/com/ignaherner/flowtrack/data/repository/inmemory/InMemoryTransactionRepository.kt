@@ -22,4 +22,12 @@ class InMemoryTransactionRepository : TransactionRepository {
         val currentList = _transactions.value
         _transactions.value = currentList + transaction
     }
+
+    override suspend fun updateTransaction(transaction: Transaction) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteTransaction(transaction: Transaction) {
+        TODO("Not yet implemented")
+    }
 }

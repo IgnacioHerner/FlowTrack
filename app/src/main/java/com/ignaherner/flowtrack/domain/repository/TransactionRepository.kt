@@ -11,5 +11,7 @@ interface TransactionRepository {
     // Agrega un nuevo movimiento
     suspend fun addTransaction(transaction: Transaction)
 
-    // TODO: Eliminar, editar, etc.
+    suspend fun updateTransaction(transaction: Transaction)
+
+    suspend fun deleteTransaction(transaction: Transaction)
 }
