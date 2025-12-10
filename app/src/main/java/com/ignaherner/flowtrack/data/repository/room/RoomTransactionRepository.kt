@@ -32,6 +32,7 @@ private fun TransactionEntity.toDomain() : Transaction =
         amount = this.amount,
         type = this.type,
         category = this.category,
+        note = this.note,
         timestamp = this.timestamp
     )
 
@@ -42,5 +43,6 @@ private fun Transaction.toEntity() : TransactionEntity =
         amount = this.amount,
         type = this.type,
         category = this.category,
+        note = this.note,
         timestamp = this.timestamp
     )

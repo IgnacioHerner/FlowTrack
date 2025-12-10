@@ -60,14 +60,16 @@ class MainViewModel(
         title: String,
         amount: Double,
         type: TransactionType,
-        category: TransactionCategory
+        category: TransactionCategory,
+        note: String?
     ) {
         // Creamos el modelo de dominio
         val transaction = Transaction (
             title = title,
             amount = amount,
             type = type,
-            category = category
+            category = category,
+            note = note
         )
 
         // Llamamos al repositorio dentro de una coroutine

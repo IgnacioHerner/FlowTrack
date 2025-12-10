@@ -59,6 +59,17 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"/>
 
+        <!-- ✅ Nota opcional -->
+        <EditText
+            android:id="@+id/etNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Nota (opcional)"
+            android:inputType="textCapSentences|textMultiLine"
+            android:minLines="1"
+            android:maxLines="3" />
+
 
     </LinearLayout>
 </ScrollView>

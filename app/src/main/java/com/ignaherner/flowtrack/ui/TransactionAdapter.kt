@@ -34,6 +34,7 @@ class TransactionAdapter :
         val tvAmount: TextView = itemView.findViewById(R.id.tvAmount)
         val tvType: TextView = itemView.findViewById(R.id.tvType)
         val tvCategory: TextView = itemView.findViewById(R.id.tvCategory)
+        val tvNote: TextView = itemView.findViewById(R.id.tvNote)
         val tvDate: TextView = itemView.findViewById(R.id.tvDate)
     }
 
@@ -89,6 +90,14 @@ class TransactionAdapter :
             TransactionCategory.OTHER -> "Otros"
         }
         holder.tvCategory.text = categoryText
+
+        // Nota opcional
+        if(item.note.isNullOrBlank()) {
+            holder.tvNote.visibility = View.GONE
+        } else {
+            holder.tvNote.visibility = View.VISIBLE
+            holder.tvNote.text = item.note
+        }
 
         // Formato de fecha simple a partir del timestamp
         // dd/MM/yyyy HH:mm -> "07/12/2025 14:30"

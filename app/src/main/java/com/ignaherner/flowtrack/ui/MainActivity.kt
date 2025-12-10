@@ -122,6 +122,7 @@ class MainActivity : AppCompatActivity() {
         // Referencias a los campos del dialogo
         val etTitle = dialogView.findViewById<EditText>(R.id.etTitle)
         val etAmount = dialogView.findViewById<EditText>(R.id.etAmount)
+        val etNote = dialogView.findViewById<EditText>(R.id.etNote)
         val rgType = dialogView.findViewById<RadioGroup>(R.id.rgType)
         val rbIncome = dialogView.findViewById<RadioButton>(R.id.rbIncome)
         val rbExpense = dialogView.findViewById<RadioButton>(R.id.rbExpense)
@@ -158,6 +159,8 @@ class MainActivity : AppCompatActivity() {
 
                 val title = etTitle.text.toString().trim()
                 val amountText = etAmount.text.toString().trim()
+                val noteText = etNote.text.toString().trim()
+
 
                 // Validacion basica de campos
                 if (title.isEmpty()) {
@@ -186,7 +189,8 @@ class MainActivity : AppCompatActivity() {
                     title = title,
                     amount = amount,
                     type = type,
-                    category = category
+                    category = category,
+                    note = noteText
                 )
             }
             .setNegativeButton("Cancelar") { dialog, _ ->

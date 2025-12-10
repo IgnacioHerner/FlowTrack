@@ -14,5 +14,6 @@ data class TransactionEntity(
     val amount: Double,
     val type: TransactionType, // Lo manejamos con TypeConverter
     val category: TransactionCategory,
+    val note: String?,
     val timestamp: Long
 )
