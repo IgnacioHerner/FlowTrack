@@ -19,7 +19,9 @@ import java.util.Locale
 
 // Adapter profesional usando ListAdapter + DiffUtil.
 // Esto permite actualizaciones eficientes y animaciones al cambiar la lista.
-class TransactionAdapter :
+class TransactionAdapter(
+    private val onItemClick: (Transaction) -> Unit
+) :
     ListAdapter<Transaction, TransactionAdapter.TransactionViewHolder>(TransactionDiffCallback) {
 
     init {
@@ -97,6 +99,11 @@ class TransactionAdapter :
         } else {
             holder.tvNote.visibility = View.VISIBLE
             holder.tvNote.text = item.note
+        }
+
+        // Click en el item para editar
+        holder.itemView.setOnClickListener {
+            onItemClick(item)
         }
 
         // Formato de fecha simple a partir del timestamp

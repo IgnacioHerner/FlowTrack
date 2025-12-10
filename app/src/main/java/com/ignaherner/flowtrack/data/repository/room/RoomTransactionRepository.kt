@@ -22,6 +22,18 @@ class RoomTransactionRepository(
             transaction.toEntity()
         )
     }
+
+    override suspend fun updateTransaction(transaction: Transaction) {
+        transactionDao.updateTransaction(
+            transaction.toEntityWithId()
+        )
+    }
+
+    override suspend fun deleteTransaction(transaction: Transaction) {
+        transactionDao.deleteTransaction(
+            transaction.toEntityWithId()
+        )
+    }
 }
 
 // Mappers entre capa data (Entity) y capa domain (Model)
@@ -39,6 +51,17 @@ private fun TransactionEntity.toDomain() : Transaction =
 private fun Transaction.toEntity() : TransactionEntity =
     TransactionEntity(
         id = 0L,
+        title = this.title,
+        amount = this.amount,
+        type = this.type,
+        category = this.category,
+        note = this.note,
+        timestamp = this.timestamp
+    )
+
+private fun Transaction.toEntityWithId(): TransactionEntity =
+    TransactionEntity(
+        id = this.id,
         title = this.title,
         amount = this.amount,
         type = this.type,
