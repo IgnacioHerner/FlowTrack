@@ -40,6 +40,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rvTransactions: RecyclerView
     private lateinit var fabAddTransaction: FloatingActionButton
 
+    private lateinit var rgPeriod: RadioGroup
+    private lateinit var rbPeriodToday: RadioButton
+    private lateinit var rbPeriodWeek: RadioButton
+    private lateinit var rbPeriodMonth: RadioButton
+    private lateinit var rbPeriodAll: RadioButton
+
+
     // Adapter de la lista
     private val transactionAdapter = TransactionAdapter { transaction ->
         showEditTransactionDialog(transaction)
@@ -55,6 +62,24 @@ class MainActivity : AppCompatActivity() {
         tvBalanceValue = findViewById(R.id.tvBalanceValue)
         rvTransactions = findViewById(R.id.rvTransactions)
         fabAddTransaction = findViewById(R.id.fabAddTransaction)
+
+        rgPeriod = findViewById(R.id.rgPeriod)
+        rbPeriodToday = findViewById(R.id.rbPeriodToday)
+        rbPeriodWeek = findViewById(R.id.rbPeriodWeek)
+        rbPeriodMonth = findViewById(R.id.rbPeriodMonth)
+        rbPeriodAll = findViewById(R.id.rbPeriodAll)
+
+        rgPeriod.setOnCheckedChangeListener { _, checkedId ->
+            val period = when (checkedId) {
+                R.id.rbPeriodToday -> PeriodFilter.TODAY
+                R.id.rbPeriodWeek -> PeriodFilter.WEEK
+                R.id.rbPeriodMonth -> PeriodFilter.MONTH
+                R.id.rbPeriodAll -> PeriodFilter.ALL
+                else -> PeriodFilter.ALL
+            }
+            viewModel.setPeriod(period)
+        }
+
 
         // 2) Configurar RecyclerView
         rvTransactions.apply {
