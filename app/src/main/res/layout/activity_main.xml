@@ -33,6 +33,43 @@
                 android:textStyle="bold"
                 android:textSize="18sp"/>
 
+            <RadioGroup
+                android:id="@+id/rgPeriod"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <RadioButton
+                    android:id="@+id/rbPeriodToday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hoy"/>
+
+                <RadioButton
+                    android:id="@+id/rbPeriodWeek"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Semana"
+                    android:layout_marginStart="8dp"/>
+
+                <RadioButton
+                    android:id="@+id/rbPeriodMonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mes"
+                    android:layout_marginStart="8dp"/>
+
+                <RadioButton
+                    android:id="@+id/rbPeriodAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Todo"
+                    android:layout_marginStart="8dp"
+                    android:checked="true"/>
+
+            </RadioGroup>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
