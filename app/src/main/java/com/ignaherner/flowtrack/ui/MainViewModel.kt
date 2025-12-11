@@ -6,6 +6,10 @@ import com.ignaherner.flowtrack.domain.model.Transaction
 import com.ignaherner.flowtrack.domain.model.TransactionCategory
 import com.ignaherner.flowtrack.domain.model.TransactionType
 import com.ignaherner.flowtrack.domain.repository.TransactionRepository
+import com.ignaherner.flowtrack.domain.usecase.AddTransactionUseCase
+import com.ignaherner.flowtrack.domain.usecase.DeleteTransactionUseCase
+import com.ignaherner.flowtrack.domain.usecase.GetTransactionsFlowUseCase
+import com.ignaherner.flowtrack.domain.usecase.UpdateTransactionUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,12 +29,15 @@ data class SummaryUiState(
 )
 
 class MainViewModel(
-    private val repository: TransactionRepository
+    private val getTransactionsFlowUseCase: GetTransactionsFlowUseCase,
+    private val addTransactionUseCase: AddTransactionUseCase,
+    private val updateTransactionUseCase: UpdateTransactionUseCase,
+    private val deleteTransactionUseCase: DeleteTransactionUseCase
 ) : ViewModel(){
 
     // Todas las transacciones que vienen del repo
     private val allTransaction: StateFlow<List<Transaction>> =
-        repository.transactionsFlow
+        getTransactionsFlowUseCase()
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -94,19 +101,19 @@ class MainViewModel(
 
         // Llamamos al repositorio dentro de una coroutine
         viewModelScope.launch {
-            repository.addTransaction(transaction)
+            addTransactionUseCase(transaction)
         }
     }
 
     fun updateTransaction(transaction: Transaction) {
         viewModelScope.launch {
-            repository.updateTransaction(transaction)
+            updateTransactionUseCase(transaction)
         }
     }
 
     fun deleteTransaction(transaction: Transaction) {
         viewModelScope.launch {
-            repository.deleteTransaction(transaction)
+            deleteTransactionUseCase(transaction)
         }
     }
 
